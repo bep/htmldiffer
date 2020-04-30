@@ -19,7 +19,7 @@ import (
 type config struct {
 	Dir1   string `arg:"required" help:"The first dir"`
 	Dir2   string `arg:"required" help:"The second dir"`
-	OutDir sring  `arg:"required" help:"The output dir"`
+	OutDir string `arg:"required" help:"The output dir"`
 }
 
 func main() {
@@ -110,10 +110,6 @@ func process(cfg config) error {
 			return nil
 		}
 
-		if len(diffs) > 0 {
-			//return filepath.SkipDir
-		}
-
 		processCounter++
 
 		f1, err := os.Open(path)
@@ -191,7 +187,7 @@ func mustReadAll(r io.Reader) []byte {
 
 func writeHugoConfig(dir string) {
 	config := `
-baseURL = https://example.org
+baseURL = "https://example.org"
 disableKinds = [ "page", "section", "taxonomy", "taxonomyTerm"]
 
 `
