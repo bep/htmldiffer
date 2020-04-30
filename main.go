@@ -38,9 +38,9 @@ func main() {
 type diff struct {
 	Path   string
 	Reason string
-	Diffs  string
-	Tags1  string
-	Tags2  string
+	//Diffs  string
+	Tags1 string
+	Tags2 string
 }
 
 func process(cfg config) error {
@@ -65,40 +65,42 @@ func process(cfg config) error {
 	var diffs []diff
 	var processCounter int
 
-	copyToStatic := func(fromDir, toDir, path string) {
-		b1, err := ioutil.ReadFile(filepath.Join(fromDir, path))
-		if err == nil {
-			outFilename := filepath.Join(toDir, path)
-			must(os.MkdirAll(filepath.Dir(outFilename), 0777))
-			must(ioutil.WriteFile(outFilename, b1, 0777))
+	/*
+
+		copyToStatic := func(fromDir, toDir, path string) {
+			b1, err := ioutil.ReadFile(filepath.Join(fromDir, path))
+			if err == nil {
+				outFilename := filepath.Join(toDir, path)
+				must(os.MkdirAll(filepath.Dir(outFilename), 0777))
+				must(ioutil.WriteFile(outFilename, b1, 0777))
+			}
+
 		}
 
-	}
+		walkStatic := func(fromDir, toDir string) error {
+			return filepath.Walk(fromDir, func(path string, info os.FileInfo, err error) error {
+				if info.IsDir() {
+					return nil
+				}
 
-	walkStatic := func(fromDir, toDir string) error {
-		return filepath.Walk(fromDir, func(path string, info os.FileInfo, err error) error {
-			if info.IsDir() {
+				rel := strings.TrimPrefix(path, fromDir)
+
+				if !strings.HasSuffix(path, "html") {
+					// CSS etc. just copy it to get the styling correct.
+					copyToStatic(fromDir, toDir, rel)
+
+				}
 				return nil
-			}
-
-			rel := strings.TrimPrefix(path, fromDir)
-
-			if !strings.HasSuffix(path, "html") {
-				// CSS etc. just copy it to get the styling correct.
-				copyToStatic(fromDir, toDir, rel)
-
-			}
-			return nil
-		})
-	}
+			})
+		}*/
 
 	// Copy the static files as-is for preview
-	if err := walkStatic(cfg.Dir1, outStaticDir1); err != nil {
+	/*if err := walkStatic(cfg.Dir1, outStaticDir1); err != nil {
 		return err
 	}
 	if err := walkStatic(cfg.Dir2, outStaticDir2); err != nil {
 		return err
-	}
+	}*/
 
 	divCounter := 0
 	codeCounter := 0
@@ -153,8 +155,8 @@ func process(cfg config) error {
 		}
 
 		if d.IsDifferent {
-			merge, err := htmldifflib.DiffMerge(string(b1), string(b2))
-			must(err)
+			//merge, err := htmldifflib.DiffMerge(string(b1), string(b2))
+			//must(err)
 			tags1, tags2 := d.Tags1, d.Tags2
 			if len(tags1) > 5 {
 				tags1 = tags1[len(tags1)-5:]
@@ -165,9 +167,9 @@ func process(cfg config) error {
 			diff := diff{
 				Path:   rel,
 				Reason: "Different",
-				Diffs:  merge[0],
-				Tags1:  strings.Join(tags1, "/"),
-				Tags2:  strings.Join(tags2, "/"),
+				//Diffs:  merge[0],
+				Tags1: strings.Join(tags1, "/"),
+				Tags2: strings.Join(tags2, "/"),
 			}
 			if strings.Contains(diff.Tags1, "div") {
 				divCounter++
@@ -214,7 +216,7 @@ func mustWrite(b []byte, filename string) {
 
 	// Create an highlighted version
 	highlighted := highlight(b)
-	must(ioutil.WriteFile(filename+".hl", highlighted, 0777))
+	must(ioutil.WriteFile(filename+".hl.html", highlighted, 0777))
 
 }
 

@@ -95,10 +95,8 @@ width: 50%; " height="100%" width="49%">
                         </div>
                         <button @click="displayRendered(diff.Path)"
                             class="w-25 h-10 mr-2 bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded text-xs">Rendered</button>
-                        <button @click="displayRendered(diff.Path + '.hl')"
+                        <button @click="displayRendered(diff.Path + '.hl.html')"
                             class="w-25 h-10 bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded text-xs">Source</button>
-                        <button @click="displayDiffs(diff)"
-                            class="w-25 h-10 bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded text-xs">Diff</button>
 
                     </div>
                 </div>
