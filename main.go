@@ -11,6 +11,10 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alecthomas/chroma/lexers"
+
+	"github.com/alecthomas/chroma/formatters/html"
+	"github.com/alecthomas/chroma/styles"
 	"github.com/bep/htmldiffer/htmldifflib"
 
 	arg "github.com/alexflint/go-arg"
@@ -48,12 +52,12 @@ func process(cfg config) error {
 	assetsDir := filepath.Join(out, "assets")
 
 	outStaticDir1, outStaticDir2 := filepath.Join(staticDir, "dir1"), filepath.Join(staticDir, "dir2")
-	outAssetsDir1, outAssetsDir2 := filepath.Join(assetsDir, "dir1"), filepath.Join(assetsDir, "dir2")
 
 	//must(os.RemoveAll(out))
 	must(os.MkdirAll(outStaticDir1, 0777))
 	must(os.MkdirAll(outStaticDir2, 0777))
 	must(os.MkdirAll(layoutsDir, 0777))
+	must(os.MkdirAll(assetsDir, 0777))
 
 	var diffs []diff
 	var processCounter int
@@ -125,7 +129,7 @@ func process(cfg config) error {
 		f2, err := os.Open(filename2)
 		if err != nil {
 			diffs = append(diffs, diff{Path: rel, Reason: "Not found"})
-			mustWrite(b1, filepath.Join(outStaticDir1, rel), filepath.Join(outAssetsDir1, rel))
+			mustWrite(b1, filepath.Join(outStaticDir1, rel))
 			return nil
 		}
 		defer f2.Close()
@@ -140,8 +144,8 @@ func process(cfg config) error {
 
 		if isDiff {
 			diffs = append(diffs, diff{Path: rel, Reason: "Different"})
-			mustWrite(b1, filepath.Join(outStaticDir1, rel), filepath.Join(outAssetsDir1, rel))
-			mustWrite(b2, filepath.Join(outStaticDir2, rel), filepath.Join(outAssetsDir2, rel))
+			mustWrite(b1, filepath.Join(outStaticDir1, rel))
+			mustWrite(b2, filepath.Join(outStaticDir2, rel))
 		}
 
 		return nil
@@ -172,11 +176,26 @@ func must(err error) {
 	}
 }
 
-func mustWrite(b []byte, filenames ...string) {
-	for _, filename := range filenames {
-		must(os.MkdirAll(filepath.Dir(filename), 0777))
-		must(ioutil.WriteFile(filename, b, 0777))
-	}
+func mustWrite(b []byte, filename string) {
+	must(os.MkdirAll(filepath.Dir(filename), 0777))
+	must(ioutil.WriteFile(filename, b, 0777))
+
+	// Create an highlighted version
+	highlighted := highlight(b)
+	must(ioutil.WriteFile(filename+".hl", highlighted, 0777))
+
+}
+
+func highlight(b []byte) []byte {
+	var buff bytes.Buffer
+	formatter := html.New(html.WithLineNumbers(true), html.LineNumbersInTable(true))
+	lexer := lexers.Get("html")
+	iterator, err := lexer.Tokenise(nil, string(b))
+	style := styles.Get("manni")
+	must(err)
+	must(formatter.Format(&buff, style, iterator))
+	return buff.Bytes()
+
 }
 
 func mustReadAll(r io.Reader) []byte {

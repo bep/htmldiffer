@@ -59,7 +59,7 @@ width: 50%; " height="100%" width="49%">
 
     <div class="container mx-auto pt-10 overflow-y-scroll border-t border-gray-200" style="height: 50%;"
         x-data="component()" x-init="init()">
-        <h1 class="text-2xl font-bold ml-2">Diffs</h1>
+        <h1 class="text-2xl font-bold ml-2" x-text="'Diffs (' + diffs.length + ')' "></h1>
         <div class="flex flex-wrap">
             <template x-for="(diff, index) in diffs" :key="diff.Path">
                 <div class="w-2/5 p-2 border-b border-gray-200 pb-4">
@@ -74,7 +74,7 @@ width: 50%; " height="100%" width="49%">
                         </div>
                         <button @click="showRendered(diff.Path)"
                             class="w-25 h-10 mr-2 bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded text-xs">Rendered</button>
-                        <button
+                        <button @click="showRendered(diff.Path + '.hl')"
                             class="w-25 h-10 bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded text-xs">Source</button>
                     </div>
                 </div>
