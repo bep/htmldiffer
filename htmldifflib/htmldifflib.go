@@ -4,7 +4,6 @@ import (
 	"io"
 	"strings"
 
-	htmldiff "github.com/documize/html-diff"
 	"github.com/yosssi/gohtml"
 
 	"golang.org/x/net/html"
@@ -77,22 +76,6 @@ func DiffStructure(doc1, doc2 io.Reader) (Diff, error) {
 	}
 
 	return d, nil
-}
-
-func DiffMerge(html1, html2 string) ([]string, error) {
-	var cfg = &htmldiff.Config{
-		Granularity:  5,
-		InsertedSpan: []htmldiff.Attribute{{Key: "style", Val: "background-color: palegreen;"}},
-		DeletedSpan:  []htmldiff.Attribute{{Key: "style", Val: "background-color: lightpink;"}},
-		ReplacedSpan: []htmldiff.Attribute{{Key: "style", Val: "background-color: lightskyblue;"}},
-		CleanTags:    []string{""},
-	}
-
-	res, err := cfg.HTMLdiff([]string{html1, html2})
-	if err != nil {
-		return []string{""}, nil
-	}
-	return res, err
 }
 
 var htmlCleaner = strings.NewReplacer(
