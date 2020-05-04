@@ -15,18 +15,16 @@ type Diff struct {
 	Tags2       []string
 }
 
-func DiffStructure(doc1, doc2 io.Reader) (Diff, error) {
+func RenderNode(w io.Writer, n *html.Node) error {
+	return html.Render(w, n)
+}
+
+func ParseDoc(r io.Reader) (*html.Node, error) {
+	return html.Parse(r)
+}
+
+func DiffStructure(n1, n2 *html.Node) (Diff, error) {
 	var d Diff
-
-	n1, err := html.Parse(doc1)
-	if err != nil {
-		return d, err
-	}
-	n2, err := html.Parse(doc2)
-	if err != nil {
-		return d, err
-	}
-
 	isDifferent := false
 
 	var tags1 []string
@@ -41,6 +39,15 @@ func DiffStructure(doc1, doc2 io.Reader) (Diff, error) {
 					tags2 = append(tags2, c2.Data)
 				}
 				if c2 == nil || c2.Data != c1.Data {
+					c1.Attr = append(c1.Attr, html.Attribute{
+						Key: "data-diff",
+					})
+
+					if c2 != nil {
+						c2.Attr = append(c2.Attr, html.Attribute{
+							Key: "data-diff",
+						})
+					}
 					isDifferent = true
 					return true
 				}
@@ -89,6 +96,5 @@ func Format(s string) string {
 }
 
 func FormatBytes(b []byte) []byte {
-
 	return []byte(Format(string(b)))
 }

@@ -149,12 +149,27 @@ func process(cfg config) error {
 		b2 := mustReadAll(f2)
 		b2 = htmldifflib.FormatBytes(b2)
 
-		d, err := htmldifflib.DiffStructure(bytes.NewReader(b1), bytes.NewReader(b2))
+		n1, err := htmldifflib.ParseDoc(bytes.NewReader(b1))
+		if err != nil {
+			return err
+		}
+
+		n2, err := htmldifflib.ParseDoc(bytes.NewReader(b2))
+		if err != nil {
+			return err
+		}
+
+		d, err := htmldifflib.DiffStructure(n1, n2)
 		if err != nil {
 			return err
 		}
 
 		if d.IsDifferent {
+			var b1 bytes.Buffer
+			htmldifflib.RenderNode(&b1, n1)
+			var b2 bytes.Buffer
+			htmldifflib.RenderNode(&b2, n2)
+
 			//merge, err := htmldifflib.DiffMerge(string(b1), string(b2))
 			//must(err)
 			tags1, tags2 := d.Tags1, d.Tags2
@@ -178,8 +193,14 @@ func process(cfg config) error {
 				codeCounter++
 			}
 			diffs = append(diffs, diff)
-			mustWrite(b1, filepath.Join(outStaticDir1, rel))
-			mustWrite(b2, filepath.Join(outStaticDir2, rel))
+			f1, err := os.Create(filepath.Join(outStaticDir1, rel))
+			must(err)
+			defer f1.Close()
+			must(htmldifflib.RenderNode(f1, n1))
+			f2, err := os.Create(filepath.Join(outStaticDir2, rel))
+			must(err)
+			defer f2.Close()
+			must(htmldifflib.RenderNode(f2, n2))
 		}
 
 		return nil

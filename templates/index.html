@@ -7,6 +7,12 @@
 
 <body class="pb-20  bg-gray-100">
 
+    <style>
+        [data-diff] {
+            background-color: yellow;
+        }
+    </style>
+
     <div style="height:50%;" class="bg-gray-200">
         <iframe name="dir1" id="dir1" frameborder="0" scrolling="yes" style="overflow: hidden; height: 100%; 
         width: 50%; float: left; " height="100%" width="49%">
@@ -20,13 +26,21 @@ width: 50%; " height="100%" width="49%">
     <script>
         var frame1 = document.getElementById('dir1');
         var frame2 = document.getElementById('dir2');
+        var styles = document.createElement('style');
+        styles.innerHTML = `[data-diff] {
+        background-color: yellow;
+        }`
+
         frame1.onload = function () {
+
+            frame1.contentDocument.body.appendChild(styles);
             frame1.contentDocument.onscroll = function () {
                 frame2.contentWindow.scrollTo(0, frame1.contentWindow.scrollY);
             }
         }
 
         frame2.onload = function () {
+            frame2.contentDocument.body.appendChild(styles);
             frame2.contentDocument.onscroll = function () {
                 frame1.contentWindow.scrollTo(0, frame2.contentWindow.scrollY);
             }
